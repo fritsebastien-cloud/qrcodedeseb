@@ -270,14 +270,14 @@ h2 { font-size: 26px; font-weight: 800; margin-bottom: 0.5rem; }
 @media (max-width: 480px) { .card { padding: 0 1.25rem; } h1 { font-size: 30px; } .roll-number { font-size: 64px; } .logo-img { width: 150px; height: 150px; } }
 @media (max-width: 768px) {
   body {
-    background: url('../PEAU-BRAS.jpg') center / cover no-repeat fixed;
+    background: url('../PEAU-BRAS.jpg') center / cover no-repeat;
   }
-  body::after {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background: rgba(15, 17, 23, 0.45);
-    z-index: 0;
-    pointer-events: none;
+  #particles-canvas {
+    display: none;
+  }
+  .card {
+    background: rgba(15, 17, 23, 0.7) !important;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
   }
 }
