@@ -51,7 +51,7 @@ body {
   width: 180px;
   height: 180px;
   object-fit: cover;
-  border-radius: 50%;
+  border-radius: 12px;
   margin-bottom: 1.5rem;
   display: inline-block;
   animation: iconBounce 2s ease infinite;
