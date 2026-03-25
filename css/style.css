@@ -31,18 +31,16 @@ body {
 .screen.active { display: flex; animation: screenIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
 @keyframes screenIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
 
-/* ── Card – glassmorphism ── */
+/* ── Card – transparent ── */
 .card {
-  background: rgba(22, 27, 36, 0.7);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 24px;
-  padding: 2.5rem 2rem;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0 2rem;
   max-width: 420px;
   width: 100%;
   text-align: center;
-  box-shadow: 0 8px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+  box-shadow: none;
   animation: fadeIn 0.3s ease;
 }
 .card-wide { max-width: 520px; }
@@ -261,4 +259,4 @@ h2 { font-size: 22px; font-weight: 700; margin-bottom: 0.25rem; }
 .leaderboard-list::-webkit-scrollbar-track { background: transparent; }
 .leaderboard-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
 .hidden { display: none !important; }
-@media (max-width: 480px) { .card { padding: 2rem 1.25rem; } h1 { font-size: 24px; } .roll-number { font-size: 56px; } }
+@media (max-width: 480px) { .card { padding: 0 1.25rem; } h1 { font-size: 24px; } .roll-number { font-size: 56px; } }
