@@ -198,6 +198,9 @@ function getFunMessage(score) {
   return { text: "Tu peux pas faire PIRE, c'est nul nul nul !", color: "#e05252" };
 }
 
+// ── State ──
+let hasPlayed = false;
+
 // ── Screens ──
 const screens = {
   welcome: document.getElementById("screen-welcome"),
@@ -209,7 +212,12 @@ function showScreen(name) {
   Object.values(screens).forEach(s => s.classList.remove("active"));
   screens[name].classList.add("active");
   if (name === "leaderboard") loadLeaderboard();
-  if (name === "welcome") loadScanCount();
+  if (name === "welcome") {
+    loadScanCount();
+    if (hasPlayed) {
+      document.getElementById("already-played").classList.remove("hidden");
+    }
+  }
 }
 
 // ── Scan counter on welcome ──
@@ -331,7 +339,11 @@ function escapeHtml(text) {
 
 // ── Event listeners ──
 document.getElementById("btn-play").addEventListener("click", () => {
+  if (hasPlayed) return;
+  hasPlayed = true;
   haptic(15);
+  document.getElementById("btn-play").disabled = true;
+  document.getElementById("btn-play").textContent = "Déjà joué !";
   document.getElementById("roll-number").textContent = "\u2014";
   document.getElementById("name-form").classList.add("hidden");
   document.getElementById("save-msg").classList.add("hidden");
@@ -371,6 +383,8 @@ document.getElementById("btn-save").addEventListener("click", () => {
     showRankReveal(finalNumber);
     document.getElementById("btn-to-leaderboard").classList.remove("hidden");
     haptic(20);
+    // Auto-navigate to leaderboard after a short delay
+    setTimeout(() => { showScreen("leaderboard"); }, 2500);
   }).catch(() => {
     btn.disabled = false;
     btn.textContent = "Enregistrer mon score";
@@ -384,7 +398,5 @@ document.getElementById("btn-save").addEventListener("click", () => {
 document.getElementById("name-input").addEventListener("keydown", (e) => {
   if (e.key === "Enter") document.getElementById("btn-save").click();
 });
-document.getElementById("btn-leaderboard").addEventListener("click", () => { haptic(10); showScreen("leaderboard"); });
 document.getElementById("btn-to-leaderboard").addEventListener("click", () => { haptic(10); showScreen("leaderboard"); });
 document.getElementById("btn-back").addEventListener("click", () => { haptic(10); showScreen("welcome"); });
-document.getElementById("btn-back-home").addEventListener("click", () => { haptic(10); showScreen("welcome"); });
