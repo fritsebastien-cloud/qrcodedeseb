@@ -13,7 +13,8 @@ const FIREBASE_CONFIG = {
 
 const app = initializeApp(FIREBASE_CONFIG);
 const db = getDatabase(app);
-const scoresRef = ref(db, "qrcode-scores");
+const scoresRef = ref(db, "qrcode-scores-v2");
+const ACCESS_CODE = "0001";
 
 // ── Particles background ──
 function initParticles() {
@@ -389,9 +390,19 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
-// ── Event listeners ──
-document.getElementById("btn-play").addEventListener("click", () => {
-  if (hasPlayed) return;
+// ── Code modal ──
+function openCodeModal() {
+  document.getElementById("code-input").value = "";
+  document.getElementById("code-error").classList.add("hidden");
+  document.getElementById("code-modal").classList.remove("hidden");
+  setTimeout(() => document.getElementById("code-input").focus(), 100);
+}
+
+function closeCodeModal() {
+  document.getElementById("code-modal").classList.add("hidden");
+}
+
+function startGame() {
   hasPlayed = true;
   haptic(15);
   document.getElementById("btn-play").disabled = true;
@@ -409,6 +420,33 @@ document.getElementById("btn-play").addEventListener("click", () => {
   finalNumber = null;
   showScreen("roll");
   setTimeout(rollAnimation, 300);
+}
+
+// ── Event listeners ──
+document.getElementById("btn-play").addEventListener("click", () => {
+  if (hasPlayed) return;
+  openCodeModal();
+});
+
+document.getElementById("btn-code-ok").addEventListener("click", () => {
+  const code = document.getElementById("code-input").value.trim();
+  if (code === ACCESS_CODE) {
+    closeCodeModal();
+    startGame();
+  } else {
+    document.getElementById("code-error").classList.remove("hidden");
+    document.getElementById("code-input").value = "";
+    document.getElementById("code-input").focus();
+    haptic(50);
+  }
+});
+
+document.getElementById("btn-code-cancel").addEventListener("click", () => {
+  closeCodeModal();
+});
+
+document.getElementById("code-input").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") document.getElementById("btn-code-ok").click();
 });
 
 document.getElementById("btn-save").addEventListener("click", () => {

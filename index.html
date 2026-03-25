@@ -29,6 +29,18 @@
     </div>
     <button id="btn-play" class="btn-primary btn-play-big">Découvre ton score</button>
   </div>
+  <div id="code-modal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <h2>Code d'accès</h2>
+      <p>Entre le code secret pour jouer :</p>
+      <input type="text" id="code-input" class="input-name" placeholder="Code" maxlength="10" autocomplete="off" inputmode="numeric" />
+      <p id="code-error" class="code-error hidden">Mauvais code, essaie encore !</p>
+      <div class="modal-buttons">
+        <button id="btn-code-cancel" class="btn-secondary">Annuler</button>
+        <button id="btn-code-ok" class="btn-primary">Valider</button>
+      </div>
+    </div>
+  </div>
   <div id="screen-roll" class="screen">
     <div class="card">
       <p class="roll-label">Ton score est...</p>
