@@ -1,11 +1,11 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { height: 100%; }
+html, body { height: 100%; overflow: hidden; position: fixed; width: 100%; }
 body {
   font-family: 'Inter', -apple-system, sans-serif;
   background: #0f1117;
   color: #e8eaf0;
   -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
+  overscroll-behavior: none;
 }
 
 /* ── Particles background ── */
@@ -27,7 +27,7 @@ body {
 }
 
 /* ── Screens & transitions ── */
-.screen { display: none; min-height: 100vh; align-items: center; justify-content: center; padding: 2rem; position: relative; z-index: 1; flex-direction: column; gap: 2rem; }
+.screen { display: none; height: 100vh; align-items: center; justify-content: center; padding: 2rem; position: relative; z-index: 1; flex-direction: column; gap: 2rem; overflow: hidden; }
 .screen.active { display: flex; animation: screenIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
 @keyframes screenIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
 
