@@ -186,17 +186,20 @@ function haptic(duration) {
 
 // ── Fun messages based on score ──
 function getFunMessage(score) {
-  if (score <= 10) return { text: "LÉGENDAIRE ! 🏆", color: "#f5a623" };
-  if (score <= 50) return { text: "Incroyable ! 🔥", color: "#f5a623" };
-  if (score <= 200) return { text: "Sacrée chance ! ✨", color: "#5b7cf7" };
-  if (score <= 500) return { text: "Pas mal du tout ! 💪", color: "#4caf7d" };
-  if (score <= 1000) return { text: "Bien joué !", color: "#4caf7d" };
-  if (score <= 3000) return { text: "Ça se tente !", color: "#7a8299" };
-  if (score <= 5000) return { text: "Mouais... 😅", color: "#7a8299" };
-  if (score <= 8000) return { text: "C'est pas ton jour 😬", color: "#e05252" };
-  if (score <= 9500) return { text: "Aïe aïe aïe... 💀", color: "#e05252" };
-  return { text: "Oh non... le pire score possible 😭", color: "#e05252" };
+  if (score <= 10) return { text: "GOAT des GOAT ! Joue au loto 🏆", color: "#f5a623" };
+  if (score <= 50) return { text: "INCROYABLE, reste là dessus tu feras pas mieux", color: "#f5a623" };
+  if (score <= 200) return { text: "Tu fais parti des meilleurs, retiens ça", color: "#5b7cf7" };
+  if (score <= 500) return { text: "C'est pas mal, mais y'a mieux quoi", color: "#4caf7d" };
+  if (score <= 1000) return { text: "Respect, mais pas plus", color: "#4caf7d" };
+  if (score <= 3000) return { text: "C'est bien d'avoir tenté...", color: "#7a8299" };
+  if (score <= 5000) return { text: "Tu perds ton temps et tu m'en fais perdre", color: "#7a8299" };
+  if (score <= 8000) return { text: "Azy toi... dommage", color: "#e05252" };
+  if (score <= 9500) return { text: "ptdrrr merci quand même...", color: "#e05252" };
+  return { text: "Tu peux pas faire PIRE, c'est nul nul nul !", color: "#e05252" };
 }
+
+// ── State ──
+let hasPlayed = false;
 
 // ── Screens ──
 const screens = {
@@ -209,7 +212,12 @@ function showScreen(name) {
   Object.values(screens).forEach(s => s.classList.remove("active"));
   screens[name].classList.add("active");
   if (name === "leaderboard") loadLeaderboard();
-  if (name === "welcome") loadScanCount();
+  if (name === "welcome") {
+    loadScanCount();
+    if (hasPlayed) {
+      document.getElementById("already-played").classList.remove("hidden");
+    }
+  }
 }
 
 // ── Scan counter on welcome ──
@@ -233,47 +241,88 @@ let allScores = [];
 
 function rollAnimation() {
   const rollEl = document.getElementById("roll-number");
-  rollEl.classList.add("spinning");
+  const card = rollEl.closest(".card");
+  rollEl.classList.add("spinning-intense");
   document.getElementById("fun-message").textContent = "";
   finalNumber = Math.floor(Math.random() * 10000) + 1;
-  const duration = 2500;
+  const duration = 5500;
   const start = Date.now();
   let tickCount = 0;
+  const baseFontSize = window.innerWidth <= 480 ? 56 : 72;
 
   // Vibrate pattern during roll
   haptic(50);
 
   function tick() {
     const elapsed = Date.now() - start;
+    const progress = elapsed / duration; // 0 → 1
+
     if (elapsed < duration) {
       rollEl.textContent = Math.floor(Math.random() * 10000) + 1;
-      const delay = 30 + (elapsed / duration) * 170;
-      tickCount++;
-      if (tickCount % 3 === 0) playTickSound();
-      if (tickCount % 5 === 0) haptic(5);
-      setTimeout(tick, delay);
-    } else {
-      rollEl.textContent = finalNumber.toLocaleString("fr-FR");
-      rollEl.classList.remove("spinning");
 
-      // Ding sound
-      playDingSound();
-      haptic(30);
+      // Progressive slowdown: starts fast (30ms), ends very slow (400ms)
+      const delay = 30 + Math.pow(progress, 2.5) * 370;
 
-      // Fun message
-      const msg = getFunMessage(finalNumber);
-      const funEl = document.getElementById("fun-message");
-      funEl.textContent = msg.text;
-      funEl.style.color = msg.color;
+      // Number grows during the roll
+      const growFactor = 1 + progress * 0.35;
+      rollEl.style.fontSize = Math.round(baseFontSize * growFactor) + "px";
 
-      // Confetti for great scores
-      if (finalNumber <= 200) {
-        launchConfetti();
-        if (finalNumber <= 50) haptic(200);
+      // Blur increases then clears in last 20%
+      if (progress < 0.8) {
+        rollEl.style.filter = "blur(" + Math.round(progress * 2) + "px)";
+      } else {
+        const clearProgress = (progress - 0.8) / 0.2;
+        rollEl.style.filter = "blur(" + Math.round((1 - clearProgress) * 1.6) + "px)";
       }
 
-      document.getElementById("name-form").classList.remove("hidden");
-      document.getElementById("name-input").focus();
+      tickCount++;
+      // Sound gets more frequent as we approach the end
+      if (tickCount % Math.max(1, Math.floor(3 - progress * 2)) === 0) playTickSound();
+      if (tickCount % Math.max(1, Math.floor(5 - progress * 4)) === 0) haptic(5 + Math.round(progress * 20));
+
+      setTimeout(tick, delay);
+    } else {
+      // ── REVEAL ──
+      rollEl.classList.remove("spinning-intense");
+      rollEl.style.filter = "";
+      rollEl.style.fontSize = "";
+
+      // Flash effect
+      const flash = document.getElementById("roll-flash");
+      flash.classList.remove("active");
+      void flash.offsetWidth; // force reflow
+      flash.classList.add("active");
+
+      // Screen shake
+      card.classList.add("screen-shake");
+      setTimeout(() => card.classList.remove("screen-shake"), 600);
+
+      // Reveal animation on number
+      rollEl.classList.add("reveal-flash");
+      setTimeout(() => rollEl.classList.remove("reveal-flash"), 700);
+
+      rollEl.textContent = finalNumber.toLocaleString("fr-FR");
+
+      // Ding sound + strong haptic
+      playDingSound();
+      haptic(100);
+
+      // Fun message with slight delay for dramatic effect
+      setTimeout(() => {
+        const msg = getFunMessage(finalNumber);
+        const funEl = document.getElementById("fun-message");
+        funEl.textContent = msg.text;
+        funEl.style.color = msg.color;
+
+        // Confetti for great scores
+        if (finalNumber <= 200) {
+          launchConfetti();
+          if (finalNumber <= 50) haptic(200);
+        }
+
+        document.getElementById("name-form").classList.remove("hidden");
+        document.getElementById("name-input").focus();
+      }, 500);
     }
   }
   tick();
@@ -331,7 +380,11 @@ function escapeHtml(text) {
 
 // ── Event listeners ──
 document.getElementById("btn-play").addEventListener("click", () => {
+  if (hasPlayed) return;
+  hasPlayed = true;
   haptic(15);
+  document.getElementById("btn-play").disabled = true;
+  document.getElementById("btn-play").textContent = "Déjà joué !";
   document.getElementById("roll-number").textContent = "\u2014";
   document.getElementById("name-form").classList.add("hidden");
   document.getElementById("save-msg").classList.add("hidden");
@@ -371,6 +424,8 @@ document.getElementById("btn-save").addEventListener("click", () => {
     showRankReveal(finalNumber);
     document.getElementById("btn-to-leaderboard").classList.remove("hidden");
     haptic(20);
+    // Auto-navigate to leaderboard after a short delay
+    setTimeout(() => { showScreen("leaderboard"); }, 2500);
   }).catch(() => {
     btn.disabled = false;
     btn.textContent = "Enregistrer mon score";
@@ -384,7 +439,5 @@ document.getElementById("btn-save").addEventListener("click", () => {
 document.getElementById("name-input").addEventListener("keydown", (e) => {
   if (e.key === "Enter") document.getElementById("btn-save").click();
 });
-document.getElementById("btn-leaderboard").addEventListener("click", () => { haptic(10); showScreen("leaderboard"); });
 document.getElementById("btn-to-leaderboard").addEventListener("click", () => { haptic(10); showScreen("leaderboard"); });
 document.getElementById("btn-back").addEventListener("click", () => { haptic(10); showScreen("welcome"); });
-document.getElementById("btn-back-home").addEventListener("click", () => { haptic(10); showScreen("welcome"); });
