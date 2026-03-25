@@ -276,8 +276,70 @@ h2 { font-size: 26px; font-weight: 800; margin-bottom: 0.5rem; }
     display: none;
   }
   .card {
-    background: rgba(15, 17, 23, 0.7) !important;
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
+    background: transparent !important;
   }
+  /* Tattoo ink style text */
+  h1 {
+    background: none !important;
+    -webkit-background-clip: unset !important;
+    -webkit-text-fill-color: #1a2744 !important;
+    background-clip: unset !important;
+    color: #1a2744 !important;
+    text-shadow: 0 0 1px rgba(26, 39, 68, 0.4);
+    font-style: italic;
+  }
+  h2 {
+    color: #1a2744 !important;
+    text-shadow: 0 0 1px rgba(26, 39, 68, 0.4);
+  }
+  .subtitle {
+    color: #1a2744 !important;
+    font-weight: 600;
+    text-shadow: 0 0 1px rgba(26, 39, 68, 0.3);
+  }
+  .scan-counter {
+    color: #2a3a5c !important;
+  }
+  .scan-counter span {
+    color: #1a2744 !important;
+  }
+  /* Tattoo style button */
+  .btn-primary {
+    background: transparent !important;
+    border: 2.5px solid #1a2744 !important;
+    color: #1a2744 !important;
+    font-weight: 800;
+    text-shadow: 0 0 1px rgba(26, 39, 68, 0.3);
+    box-shadow: none !important;
+  }
+  .btn-primary:active {
+    background: rgba(26, 39, 68, 0.15) !important;
+  }
+  .btn-secondary {
+    background: transparent !important;
+    border: 1.5px solid #2a3a5c !important;
+    color: #2a3a5c !important;
+    box-shadow: none !important;
+  }
+  /* Roll screen tattoo style */
+  .roll-label { color: #1a2744 !important; }
+  .roll-number { color: #1a2744 !important; text-shadow: 0 0 2px rgba(26, 39, 68, 0.3); }
+  .fun-message { text-shadow: 0 0 1px rgba(26, 39, 68, 0.3); }
+  .retry-text { color: #2a3a5c !important; }
+  .input-name {
+    background: rgba(255,255,255,0.15) !important;
+    border-color: #2a3a5c !important;
+    color: #1a2744 !important;
+  }
+  .input-name::placeholder { color: #3a4a6c !important; }
+  .save-msg { color: #1a2744 !important; }
+  .rank-reveal { color: #1a2744 !important; }
+  /* Leaderboard tattoo style */
+  .lb-subtitle { color: #2a3a5c !important; }
+  .total-players { color: #2a3a5c !important; }
+  .lb-row { background: rgba(255,255,255,0.1) !important; }
+  .lb-name { color: #1a2744 !important; }
+  .lb-date { color: #3a4a6c !important; }
+  .lb-score { color: #1a2744 !important; }
+  .lb-rank { background: rgba(26, 39, 68, 0.2) !important; color: #1a2744 !important; }
 }
