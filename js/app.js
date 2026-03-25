@@ -75,7 +75,10 @@ window.addEventListener("resize", resizeConfetti);
 
 function launchConfetti() {
   confettiPieces = [];
-  const colors = ["#f5a623", "#e05252", "#5b7cf7", "#4caf7d", "#fff", "#cd7f32"];
+  const isMobile = window.innerWidth <= 768;
+  const colors = isMobile
+    ? ["#1a2744", "#2a3a5c", "#1b3a2a", "#0d1f3c", "#2c4a3a", "#162038"]
+    : ["#f5a623", "#e05252", "#5b7cf7", "#4caf7d", "#fff", "#cd7f32"];
   for (let i = 0; i < 120; i++) {
     confettiPieces.push({
       x: window.innerWidth / 2 + (Math.random() - 0.5) * 200,
