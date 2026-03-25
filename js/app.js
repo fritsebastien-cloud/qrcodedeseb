@@ -58,7 +58,7 @@ function loadLeaderboard() {
       return;
     }
     const entries = Object.values(data);
-    entries.sort((a, b) => b.score - a.score);
+    entries.sort((a, b) => a.score - b.score);
     document.getElementById("total-players").textContent = entries.length + " joueur" + (entries.length > 1 ? "s" : "") + " au total";
     listEl.innerHTML = entries.map((entry, i) => {
       const rank = i + 1;
