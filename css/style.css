@@ -27,7 +27,7 @@ body {
 }
 
 /* ── Screens & transitions ── */
-.screen { display: none; min-height: 100vh; align-items: center; justify-content: center; padding: 1.5rem; position: relative; z-index: 1; flex-direction: column; gap: 1.5rem; }
+.screen { display: none; min-height: 100vh; align-items: center; justify-content: center; padding: 2rem; position: relative; z-index: 1; flex-direction: column; gap: 2rem; }
 .screen.active { display: flex; animation: screenIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
 @keyframes screenIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -48,8 +48,8 @@ body {
 
 /* ── Animated logo icon ── */
 .logo-icon {
-  font-size: 56px;
-  margin-bottom: 1rem;
+  font-size: 72px;
+  margin-bottom: 1.5rem;
   display: inline-block;
   animation: iconBounce 2s ease infinite;
 }
@@ -73,10 +73,10 @@ body {
   font-weight: 700;
 }
 
-h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 0.5rem; background: linear-gradient(135deg, #f5a623, #e05252, #5b7cf7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-h2 { font-size: 22px; font-weight: 700; margin-bottom: 0.25rem; }
-.subtitle { font-size: 14px; color: #7a8299; line-height: 1.6; margin-bottom: 1.5rem; }
-.lb-subtitle { font-size: 13px; color: #5a6280; margin-bottom: 1.5rem; }
+h1 { font-size: 36px; font-weight: 900; letter-spacing: -0.5px; margin-bottom: 0.75rem; background: linear-gradient(135deg, #f5a623, #e05252, #5b7cf7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+h2 { font-size: 26px; font-weight: 800; margin-bottom: 0.5rem; }
+.subtitle { font-size: 15px; color: #9ba3bc; line-height: 1.8; margin-bottom: 0.5rem; }
+.lb-subtitle { font-size: 14px; color: #7a8299; margin-bottom: 1.5rem; }
 
 /* ── Buttons with haptic feel ── */
 .btn-primary {
@@ -122,19 +122,19 @@ h2 { font-size: 22px; font-weight: 700; margin-bottom: 0.25rem; }
 .btn-primary:active { transform: scale(0.96); }
 .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
-.btn-secondary { width: 100%; padding: 12px; background: rgba(255,255,255,0.05); color: #7a8299; border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; font-size: 14px; font-weight: 500; font-family: inherit; cursor: pointer; transition: all 0.15s; margin-top: 0.75rem; }
-.btn-secondary:hover { background: rgba(255,255,255,0.08); color: #e8eaf0; }
+.btn-secondary { width: 100%; padding: 14px; background: rgba(255,255,255,0.06); color: #9ba3bc; border: 1px solid rgba(255,255,255,0.15); border-radius: 14px; font-size: 15px; font-weight: 500; font-family: inherit; cursor: pointer; transition: all 0.15s; margin-top: 0.75rem; }
+.btn-secondary:hover { background: rgba(255,255,255,0.1); color: #e8eaf0; }
 .btn-secondary:active { transform: scale(0.97); }
 
 .btn-link { background: none; border: none; color: #5a6280; font-size: 13px; font-family: inherit; cursor: pointer; margin-top: 1rem; transition: color 0.15s; }
 .btn-link:hover { color: #e8eaf0; }
 
 /* ── Roll screen ── */
-.roll-label { font-size: 14px; color: #7a8299; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 500; }
+.roll-label { font-size: 16px; color: #9ba3bc; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.15em; font-weight: 600; }
 .roll-number {
-  font-size: 72px;
+  font-size: 88px;
   font-weight: 900;
-  letter-spacing: -2px;
+  letter-spacing: -3px;
   line-height: 1;
   margin-bottom: 1.5rem;
   background: linear-gradient(135deg, #f5a623, #e05252, #5b7cf7);
@@ -202,7 +202,7 @@ h2 { font-size: 22px; font-weight: 700; margin-bottom: 0.25rem; }
 
 /* ── Fun message after roll ── */
 .fun-message {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
   animation: funPop 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -259,4 +259,4 @@ h2 { font-size: 22px; font-weight: 700; margin-bottom: 0.25rem; }
 .leaderboard-list::-webkit-scrollbar-track { background: transparent; }
 .leaderboard-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
 .hidden { display: none !important; }
-@media (max-width: 480px) { .card { padding: 0 1.25rem; } h1 { font-size: 24px; } .roll-number { font-size: 56px; } }
+@media (max-width: 480px) { .card { padding: 0 1.25rem; } h1 { font-size: 30px; } .roll-number { font-size: 64px; } .logo-icon { font-size: 60px; } }
