@@ -311,20 +311,34 @@ h2 { font-size: 26px; font-weight: 800; margin-bottom: 0.5rem; }
     font-weight: 800;
     text-shadow: 0 0 1px rgba(26, 39, 68, 0.3);
     box-shadow: none !important;
+    animation: none !important;
   }
   .btn-primary:active {
     background: rgba(26, 39, 68, 0.15) !important;
   }
+  .btn-primary::after { display: none !important; }
   .btn-secondary {
     background: transparent !important;
     border: 1.5px solid #2a3a5c !important;
     color: #2a3a5c !important;
     box-shadow: none !important;
   }
-  /* Roll screen tattoo style */
+  /* Roll screen tattoo style – TOUT en sombre sur peau */
   .roll-label { color: #1a2744 !important; }
-  .roll-number { color: #1a2744 !important; text-shadow: 0 0 2px rgba(26, 39, 68, 0.3); }
-  .fun-message { text-shadow: 0 0 1px rgba(26, 39, 68, 0.3); }
+  .roll-number {
+    background: none !important;
+    -webkit-background-clip: unset !important;
+    -webkit-text-fill-color: #1a2744 !important;
+    background-clip: unset !important;
+    color: #1a2744 !important;
+    text-shadow: 0 0 2px rgba(26, 39, 68, 0.3);
+  }
+  .fun-message {
+    color: #1a2744 !important;
+    text-shadow: 0 0 1px rgba(26, 39, 68, 0.3);
+  }
+  /* Cacher le flash orange sur mobile */
+  #roll-flash { display: none !important; }
   .retry-text { color: #2a3a5c !important; }
   .input-name {
     background: rgba(255,255,255,0.15) !important;
