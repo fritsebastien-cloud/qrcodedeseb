@@ -46,9 +46,12 @@ body {
 .card-wide { max-width: 520px; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-/* ── Animated logo icon ── */
-.logo-icon {
-  font-size: 72px;
+/* ── Logo image ── */
+.logo-img {
+  width: 90px;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 50%;
   margin-bottom: 1.5rem;
   display: inline-block;
   animation: iconBounce 2s ease infinite;
@@ -259,4 +262,4 @@ h2 { font-size: 26px; font-weight: 800; margin-bottom: 0.5rem; }
 .leaderboard-list::-webkit-scrollbar-track { background: transparent; }
 .leaderboard-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
 .hidden { display: none !important; }
-@media (max-width: 480px) { .card { padding: 0 1.25rem; } h1 { font-size: 30px; } .roll-number { font-size: 64px; } .logo-icon { font-size: 60px; } }
+@media (max-width: 480px) { .card { padding: 0 1.25rem; } h1 { font-size: 30px; } .roll-number { font-size: 64px; } .logo-img { width: 75px; height: 75px; } }
