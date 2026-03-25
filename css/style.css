@@ -292,35 +292,27 @@ h2 { font-size: 26px; font-weight: 800; margin-bottom: 0.5rem; }
     transform: rotate(-2deg);
   }
   h2 {
-    font-family: 'Permanent Marker', cursive !important;
     color: #1a2744 !important;
-    text-shadow: 0 0 2px rgba(26, 39, 68, 0.5), 0 0 4px rgba(26, 39, 68, 0.15);
+    text-shadow: 0 0 1px rgba(26, 39, 68, 0.4);
   }
   .subtitle {
-    font-family: 'Caveat', cursive !important;
     color: #1a2744 !important;
-    font-weight: 700;
-    font-size: 18px !important;
-    line-height: 2 !important;
-    text-shadow: 0 0 1px rgba(26, 39, 68, 0.4), 0 0 3px rgba(26, 39, 68, 0.1);
+    font-weight: 600;
+    text-shadow: 0 0 1px rgba(26, 39, 68, 0.3);
   }
   .scan-counter {
-    font-family: 'Caveat', cursive !important;
     color: #2a3a5c !important;
-    font-size: 15px !important;
   }
   .scan-counter span {
     color: #1a2744 !important;
   }
   /* Tattoo style button – fond bleu encre, texte peau */
   .btn-primary {
-    font-family: 'Permanent Marker', cursive !important;
     background: #1a2744 !important;
     border: none !important;
     -webkit-text-fill-color: #d4a574 !important;
     color: #d4a574 !important;
-    font-weight: 400;
-    letter-spacing: 1px;
+    font-weight: 800;
     text-shadow: none !important;
     box-shadow: none !important;
     animation: none !important;
@@ -330,48 +322,32 @@ h2 { font-size: 26px; font-weight: 800; margin-bottom: 0.5rem; }
   }
   .btn-primary::after { display: none !important; }
   .btn-secondary {
-    font-family: 'Caveat', cursive !important;
     background: transparent !important;
     border: 1.5px solid #2a3a5c !important;
     color: #2a3a5c !important;
     box-shadow: none !important;
-    font-size: 17px !important;
-    font-weight: 700;
   }
   /* Roll screen tattoo style – TOUT en sombre sur peau */
-  .roll-label {
-    font-family: 'Caveat', cursive !important;
-    color: #1a2744 !important;
-    font-size: 20px !important;
-  }
+  .roll-label { color: #1a2744 !important; }
   .roll-number {
-    font-family: 'Permanent Marker', cursive !important;
     background: none !important;
     -webkit-background-clip: unset !important;
     -webkit-text-fill-color: #1a2744 !important;
     background-clip: unset !important;
     color: #1a2744 !important;
-    text-shadow: 0 0 3px rgba(26, 39, 68, 0.4), 0 0 6px rgba(26, 39, 68, 0.1);
+    text-shadow: 0 0 2px rgba(26, 39, 68, 0.3);
   }
   .fun-message {
-    font-family: 'Caveat', cursive !important;
     color: #1a2744 !important;
-    font-size: 22px !important;
-    text-shadow: 0 0 2px rgba(26, 39, 68, 0.4), 0 0 4px rgba(26, 39, 68, 0.1);
+    text-shadow: 0 0 1px rgba(26, 39, 68, 0.3);
   }
   /* Cacher le flash orange sur mobile */
   #roll-flash { display: none !important; }
-  .retry-text {
-    font-family: 'Caveat', cursive !important;
-    color: #2a3a5c !important;
-    font-size: 18px !important;
-  }
+  .retry-text { color: #2a3a5c !important; }
   .input-name {
-    font-family: 'Caveat', cursive !important;
     background: rgba(255,255,255,0.15) !important;
     border-color: #2a3a5c !important;
     color: #1a2744 !important;
-    font-size: 18px !important;
   }
   .input-name::placeholder { color: #3a4a6c !important; }
   .save-msg { color: #1a2744 !important; }
