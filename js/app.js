@@ -186,16 +186,16 @@ function haptic(duration) {
 
 // ── Fun messages based on score ──
 function getFunMessage(score) {
-  if (score <= 10) return { text: "LÉGENDAIRE ! 🏆", color: "#f5a623" };
-  if (score <= 50) return { text: "Incroyable ! 🔥", color: "#f5a623" };
-  if (score <= 200) return { text: "Sacrée chance ! ✨", color: "#5b7cf7" };
-  if (score <= 500) return { text: "Pas mal du tout ! 💪", color: "#4caf7d" };
-  if (score <= 1000) return { text: "Bien joué !", color: "#4caf7d" };
-  if (score <= 3000) return { text: "Ça se tente !", color: "#7a8299" };
-  if (score <= 5000) return { text: "Mouais... 😅", color: "#7a8299" };
-  if (score <= 8000) return { text: "C'est pas ton jour 😬", color: "#e05252" };
-  if (score <= 9500) return { text: "Aïe aïe aïe... 💀", color: "#e05252" };
-  return { text: "Oh non... le pire score possible 😭", color: "#e05252" };
+  if (score <= 10) return { text: "GOAT des GOAT ! Joue au loto 🏆", color: "#f5a623" };
+  if (score <= 50) return { text: "INCROYABLE, reste là dessus tu feras pas mieux", color: "#f5a623" };
+  if (score <= 200) return { text: "Tu fais parti des meilleurs, retiens ça", color: "#5b7cf7" };
+  if (score <= 500) return { text: "C'est pas mal, mais y'a mieux quoi", color: "#4caf7d" };
+  if (score <= 1000) return { text: "Respect, mais pas plus", color: "#4caf7d" };
+  if (score <= 3000) return { text: "C'est bien d'avoir tenté...", color: "#7a8299" };
+  if (score <= 5000) return { text: "Tu perds ton temps et tu m'en fais perdre", color: "#7a8299" };
+  if (score <= 8000) return { text: "Azy toi... dommage", color: "#e05252" };
+  if (score <= 9500) return { text: "ptdrrr merci quand même...", color: "#e05252" };
+  return { text: "Tu peux pas faire PIRE, c'est nul nul nul !", color: "#e05252" };
 }
 
 // ── Screens ──
