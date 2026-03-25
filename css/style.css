@@ -276,7 +276,7 @@ h2 { font-size: 26px; font-weight: 800; margin-bottom: 0.5rem; }
     content: '';
     position: fixed;
     inset: 0;
-    background: rgba(15, 17, 23, 0.75);
+    background: rgba(15, 17, 23, 0.45);
     z-index: 0;
     pointer-events: none;
   }
