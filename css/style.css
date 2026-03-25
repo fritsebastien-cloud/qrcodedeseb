@@ -266,6 +266,67 @@ h2 { font-size: 26px; font-weight: 800; margin-bottom: 0.5rem; }
 .leaderboard-list::-webkit-scrollbar { width: 4px; }
 .leaderboard-list::-webkit-scrollbar-track { background: transparent; }
 .leaderboard-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+/* ── Code modal ── */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  animation: fadeIn 0.2s ease;
+}
+.modal-overlay.hidden { display: none !important; }
+.modal-box {
+  background: #1c2232;
+  border-radius: 20px;
+  padding: 2rem;
+  max-width: 340px;
+  width: 100%;
+  text-align: center;
+}
+.modal-box h2 {
+  font-size: 22px;
+  margin-bottom: 0.5rem;
+}
+.modal-box p {
+  font-size: 14px;
+  color: #9ba3bc;
+  margin-bottom: 1rem;
+}
+.modal-buttons {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+.modal-buttons .btn-primary,
+.modal-buttons .btn-secondary {
+  flex: 1;
+  margin-top: 0;
+}
+.code-error {
+  color: #e05252 !important;
+  font-size: 13px !important;
+  font-weight: 600;
+  margin-bottom: 0 !important;
+}
+@media (max-width: 768px) {
+  .modal-box {
+    background: rgba(255, 255, 255, 0.95) !important;
+  }
+  .modal-box h2 {
+    color: #1a2744 !important;
+  }
+  .modal-box p {
+    color: #2a3a5c !important;
+  }
+  .code-error {
+    color: #c0392b !important;
+  }
+}
 .hidden { display: none !important; }
 @media (max-width: 480px) { .card { padding: 0 1.25rem; } h1 { font-size: 30px; } .roll-number { font-size: 64px; } .logo-img { width: 150px; height: 150px; } }
 @media (max-width: 768px) {
