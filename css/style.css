@@ -303,18 +303,19 @@ h2 { font-size: 26px; font-weight: 800; margin-bottom: 0.5rem; }
   .scan-counter span {
     color: #1a2744 !important;
   }
-  /* Tattoo style button */
+  /* Tattoo style button – fond bleu encre, texte peau */
   .btn-primary {
-    background: transparent !important;
-    border: 2.5px solid #1a2744 !important;
-    color: #1a2744 !important;
+    background: #1a2744 !important;
+    border: none !important;
+    -webkit-text-fill-color: #d4a574 !important;
+    color: #d4a574 !important;
     font-weight: 800;
-    text-shadow: 0 0 1px rgba(26, 39, 68, 0.3);
+    text-shadow: none !important;
     box-shadow: none !important;
     animation: none !important;
   }
   .btn-primary:active {
-    background: rgba(26, 39, 68, 0.15) !important;
+    background: #0d1f3c !important;
   }
   .btn-primary::after { display: none !important; }
   .btn-secondary {
