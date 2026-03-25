@@ -298,7 +298,9 @@ h2 { font-size: 26px; font-weight: 800; margin-bottom: 0.5rem; }
   .subtitle {
     color: #1a2744 !important;
     font-weight: 600;
+    font-size: 13px !important;
     text-shadow: 0 0 1px rgba(26, 39, 68, 0.3);
+    white-space: nowrap;
   }
   .scan-counter {
     color: #2a3a5c !important;
