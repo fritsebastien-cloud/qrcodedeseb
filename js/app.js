@@ -200,6 +200,7 @@ function getFunMessage(score) {
 
 // ── State ──
 let hasPlayed = false;
+let attempts = 0;
 
 // ── Screens ──
 const screens = {
@@ -320,8 +321,15 @@ function rollAnimation() {
           if (finalNumber <= 50) haptic(200);
         }
 
-        document.getElementById("name-form").classList.remove("hidden");
-        document.getElementById("name-input").focus();
+        attempts++;
+        if (attempts < 2) {
+          // First attempt: show retry option
+          document.getElementById("retry-section").classList.remove("hidden");
+        } else {
+          // Second attempt: must enter name
+          document.getElementById("name-form").classList.remove("hidden");
+          document.getElementById("name-input").focus();
+        }
       }, 500);
     }
   }
@@ -434,6 +442,23 @@ document.getElementById("btn-save").addEventListener("click", () => {
     msg.style.color = "#e05252";
     msg.classList.remove("hidden");
   });
+});
+
+// ── Retry (second chance) ──
+document.getElementById("btn-retry").addEventListener("click", () => {
+  haptic(15);
+  document.getElementById("retry-section").classList.add("hidden");
+  document.getElementById("roll-number").textContent = "\u2014";
+  document.getElementById("fun-message").textContent = "";
+  finalNumber = null;
+  setTimeout(rollAnimation, 300);
+});
+
+document.getElementById("btn-keep").addEventListener("click", () => {
+  haptic(10);
+  document.getElementById("retry-section").classList.add("hidden");
+  document.getElementById("name-form").classList.remove("hidden");
+  document.getElementById("name-input").focus();
 });
 
 document.getElementById("name-input").addEventListener("keydown", (e) => {

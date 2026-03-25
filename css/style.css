@@ -230,6 +230,11 @@ h2 { font-size: 26px; font-weight: 800; margin-bottom: 0.5rem; }
   font-size: 15px;
 }
 
+/* ── Retry section ── */
+.retry-section { display: flex; flex-direction: column; gap: 0.75rem; animation: fadeIn 0.3s ease; }
+.retry-section.hidden { display: none; }
+.retry-text { font-size: 14px; color: #9ba3bc; margin-bottom: 0.25rem; }
+
 /* ── Name form ── */
 .name-form { display: flex; flex-direction: column; gap: 0.75rem; }
 .name-form.hidden { display: none; }
