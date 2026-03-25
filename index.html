@@ -9,6 +9,13 @@
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
+  <img id="bg-skin" src="PEAU-BRAS.jpg" alt="" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:-1;" />
+  <script>
+    if (window.innerWidth <= 768) {
+      var bg = document.getElementById('bg-skin');
+      bg.style.display = 'block';
+    }
+  </script>
   <canvas id="particles-canvas"></canvas>
   <canvas id="confetti-canvas"></canvas>
   <div id="roll-flash"></div>
