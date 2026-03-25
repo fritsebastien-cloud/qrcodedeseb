@@ -9,11 +9,14 @@
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
+  <canvas id="particles-canvas"></canvas>
+  <canvas id="confetti-canvas"></canvas>
   <div id="screen-welcome" class="screen active">
     <div class="card">
       <div class="logo-icon">&#x1F3B2;</div>
       <h1>Le QR Code de Seb</h1>
       <p class="subtitle">Tu viens de scanner mon tatouage, bravo !<br>Tente ta chance et entre dans le classement.</p>
+      <p id="scan-counter" class="scan-counter"></p>
       <button id="btn-play" class="btn-primary">Tirer mon nombre</button>
       <button id="btn-leaderboard" class="btn-secondary">Voir le classement</button>
     </div>
@@ -22,11 +25,13 @@
     <div class="card">
       <p class="roll-label">Ton nombre est...</p>
       <div id="roll-number" class="roll-number">&mdash;</div>
+      <div id="fun-message" class="fun-message"></div>
       <div id="name-form" class="name-form hidden">
         <input type="text" id="name-input" class="input-name" placeholder="Ton pr&eacute;nom" maxlength="30" autocomplete="off" />
         <button id="btn-save" class="btn-primary">Enregistrer mon score</button>
       </div>
       <p id="save-msg" class="save-msg hidden"></p>
+      <div id="rank-reveal" class="rank-reveal hidden"></div>
       <button id="btn-to-leaderboard" class="btn-secondary hidden">Voir le classement</button>
       <button id="btn-back-home" class="btn-link">Retour</button>
     </div>
@@ -47,4 +52,3 @@
   <script type="module" src="js/app.js"></script>
 </body>
 </html>
-
