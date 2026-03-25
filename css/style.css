@@ -47,21 +47,14 @@ body {
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
 /* ── Logo image ── */
-.logo-wrap {
-  display: inline-block;
-  background: linear-gradient(135deg, #f5a623, #e05252, #5b7cf7);
-  border-radius: 12px;
-  margin-bottom: 1.5rem;
-  animation: iconBounce 2s ease infinite;
-  line-height: 0;
-}
 .logo-img {
   width: 180px;
   height: 180px;
   object-fit: cover;
   border-radius: 12px;
+  margin-bottom: 1.5rem;
   display: inline-block;
-  mix-blend-mode: screen;
+  animation: iconBounce 2s ease infinite;
 }
 @keyframes iconBounce {
   0%, 100% { transform: translateY(0) rotate(0deg); }
@@ -284,10 +277,6 @@ h2 { font-size: 26px; font-weight: 800; margin-bottom: 0.5rem; }
   }
   .card {
     background: transparent !important;
-  }
-  /* QR code en bleu-noir tatouage */
-  .logo-wrap {
-    background: #1a2744 !important;
   }
   /* Tattoo ink style text */
   h1 {
