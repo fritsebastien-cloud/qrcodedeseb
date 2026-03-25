@@ -241,47 +241,88 @@ let allScores = [];
 
 function rollAnimation() {
   const rollEl = document.getElementById("roll-number");
-  rollEl.classList.add("spinning");
+  const card = rollEl.closest(".card");
+  rollEl.classList.add("spinning-intense");
   document.getElementById("fun-message").textContent = "";
   finalNumber = Math.floor(Math.random() * 10000) + 1;
-  const duration = 2500;
+  const duration = 5500;
   const start = Date.now();
   let tickCount = 0;
+  const baseFontSize = window.innerWidth <= 480 ? 56 : 72;
 
   // Vibrate pattern during roll
   haptic(50);
 
   function tick() {
     const elapsed = Date.now() - start;
+    const progress = elapsed / duration; // 0 → 1
+
     if (elapsed < duration) {
       rollEl.textContent = Math.floor(Math.random() * 10000) + 1;
-      const delay = 30 + (elapsed / duration) * 170;
-      tickCount++;
-      if (tickCount % 3 === 0) playTickSound();
-      if (tickCount % 5 === 0) haptic(5);
-      setTimeout(tick, delay);
-    } else {
-      rollEl.textContent = finalNumber.toLocaleString("fr-FR");
-      rollEl.classList.remove("spinning");
 
-      // Ding sound
-      playDingSound();
-      haptic(30);
+      // Progressive slowdown: starts fast (30ms), ends very slow (400ms)
+      const delay = 30 + Math.pow(progress, 2.5) * 370;
 
-      // Fun message
-      const msg = getFunMessage(finalNumber);
-      const funEl = document.getElementById("fun-message");
-      funEl.textContent = msg.text;
-      funEl.style.color = msg.color;
+      // Number grows during the roll
+      const growFactor = 1 + progress * 0.35;
+      rollEl.style.fontSize = Math.round(baseFontSize * growFactor) + "px";
 
-      // Confetti for great scores
-      if (finalNumber <= 200) {
-        launchConfetti();
-        if (finalNumber <= 50) haptic(200);
+      // Blur increases then clears in last 20%
+      if (progress < 0.8) {
+        rollEl.style.filter = "blur(" + Math.round(progress * 2) + "px)";
+      } else {
+        const clearProgress = (progress - 0.8) / 0.2;
+        rollEl.style.filter = "blur(" + Math.round((1 - clearProgress) * 1.6) + "px)";
       }
 
-      document.getElementById("name-form").classList.remove("hidden");
-      document.getElementById("name-input").focus();
+      tickCount++;
+      // Sound gets more frequent as we approach the end
+      if (tickCount % Math.max(1, Math.floor(3 - progress * 2)) === 0) playTickSound();
+      if (tickCount % Math.max(1, Math.floor(5 - progress * 4)) === 0) haptic(5 + Math.round(progress * 20));
+
+      setTimeout(tick, delay);
+    } else {
+      // ── REVEAL ──
+      rollEl.classList.remove("spinning-intense");
+      rollEl.style.filter = "";
+      rollEl.style.fontSize = "";
+
+      // Flash effect
+      const flash = document.getElementById("roll-flash");
+      flash.classList.remove("active");
+      void flash.offsetWidth; // force reflow
+      flash.classList.add("active");
+
+      // Screen shake
+      card.classList.add("screen-shake");
+      setTimeout(() => card.classList.remove("screen-shake"), 600);
+
+      // Reveal animation on number
+      rollEl.classList.add("reveal-flash");
+      setTimeout(() => rollEl.classList.remove("reveal-flash"), 700);
+
+      rollEl.textContent = finalNumber.toLocaleString("fr-FR");
+
+      // Ding sound + strong haptic
+      playDingSound();
+      haptic(100);
+
+      // Fun message with slight delay for dramatic effect
+      setTimeout(() => {
+        const msg = getFunMessage(finalNumber);
+        const funEl = document.getElementById("fun-message");
+        funEl.textContent = msg.text;
+        funEl.style.color = msg.color;
+
+        // Confetti for great scores
+        if (finalNumber <= 200) {
+          launchConfetti();
+          if (finalNumber <= 50) haptic(200);
+        }
+
+        document.getElementById("name-form").classList.remove("hidden");
+        document.getElementById("name-input").focus();
+      }, 500);
     }
   }
   tick();
