@@ -301,7 +301,11 @@ h2 { font-size: 26px; font-weight: 800; margin-bottom: 0.5rem; }
     text-shadow: 0 0 1px rgba(26, 39, 68, 0.3);
   }
   .scan-counter {
+    font-family: 'Caveat', cursive !important;
+    font-size: 16px !important;
+    font-weight: 700;
     color: #2a3a5c !important;
+    text-shadow: 0 0 1px rgba(26, 39, 68, 0.3);
   }
   .scan-counter span {
     color: #1a2744 !important;
