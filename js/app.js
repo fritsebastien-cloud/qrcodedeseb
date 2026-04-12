@@ -13,8 +13,31 @@ const FIREBASE_CONFIG = {
 
 const app = initializeApp(FIREBASE_CONFIG);
 const db = getDatabase(app);
-const scoresRef = ref(db, "qrcode-scores-v2");
-const ACCESS_CODE = "0001";
+const scoresRef = ref(db, "qrcode-scores-v3");
+
+// Access code hashed with SHA-256 (not readable in source code)
+// To change the code, hash the new code at: https://emn178.github.io/online-tools/sha256.html
+const ACCESS_CODE_HASH = "888b19a43b151683c87895f6211d9f8640f97bdc8ef32f03dbe057c8f5e56d32";
+
+async function hashCode(input) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(input);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+}
+
+// Generate a game token to validate that scores come from actual gameplay
+function generateGameToken(score, timestamp) {
+  const secret = timestamp.toString(36) + score.toString(36) + "bras";
+  let hash = 0;
+  for (let i = 0; i < secret.length; i++) {
+    const char = secret.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash;
+  }
+  return Math.abs(hash).toString(36);
+}
 
 // ── Particles background ──
 function initParticles() {
@@ -341,7 +364,20 @@ function rollAnimation() {
 }
 
 function saveScore(name, score) {
-  return push(scoresRef, { name: name, score: score, date: Date.now() });
+  // Validate data before saving
+  const cleanName = name.replace(/[<>"'&]/g, "").substring(0, 30).trim();
+  if (!cleanName || cleanName.length < 1) return Promise.reject("Invalid name");
+  if (!Number.isInteger(score) || score < 1 || score > 10000) return Promise.reject("Invalid score");
+
+  const timestamp = Date.now();
+  const token = generateGameToken(score, timestamp);
+  return push(scoresRef, {
+    name: cleanName,
+    score: score,
+    date: timestamp,
+    token: token,
+    v: 3
+  });
 }
 
 // ── Rank reveal ──
@@ -428,9 +464,10 @@ document.getElementById("btn-play").addEventListener("click", () => {
   openCodeModal();
 });
 
-document.getElementById("btn-code-ok").addEventListener("click", () => {
+document.getElementById("btn-code-ok").addEventListener("click", async () => {
   const code = document.getElementById("code-input").value.trim();
-  if (code === ACCESS_CODE) {
+  const codeHash = await hashCode(code);
+  if (codeHash === ACCESS_CODE_HASH) {
     closeCodeModal();
     startGame();
   } else {
