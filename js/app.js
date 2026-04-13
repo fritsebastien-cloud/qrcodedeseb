@@ -17,7 +17,7 @@ const scoresRef = ref(db, "qrcode-scores-v3");
 
 // Access code hashed with SHA-256 (not readable in source code)
 // To change the code, hash the new code at: https://emn178.github.io/online-tools/sha256.html
-const ACCESS_CODE_HASH = "888b19a43b151683c87895f6211d9f8640f97bdc8ef32f03dbe057c8f5e56d32";
+const ACCESS_CODE_HASH = "c18eab1d848cc0fef69adaf999c36afc0f42a2c33408f61ac5cf4e9684041426";
 
 async function hashCode(input) {
   const encoder = new TextEncoder();
