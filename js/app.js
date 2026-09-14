@@ -72,6 +72,50 @@ function initWheel() {
   drawWheel(currentRotation);
 }
 
+// ── Sound effects ──
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+let audioCtx = null;
+
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new AudioCtx();
+  return audioCtx;
+}
+
+function playTickSound(speed) {
+  try {
+    const ctx = getAudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.frequency.value = 600 + Math.random() * 300;
+    osc.type = "square";
+    const vol = speed ? Math.min(0.06, 0.02 + (1 - speed / 0.25) * 0.04) : 0.03;
+    gain.gain.value = vol;
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.04);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.04);
+  } catch (e) {}
+}
+
+function playRevealSound() {
+  try {
+    const ctx = getAudioCtx();
+    [523, 659, 784, 1047].forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.value = freq;
+      osc.type = "sine";
+      gain.gain.value = 0.07;
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8 + i * 0.1);
+      osc.start(ctx.currentTime + i * 0.08);
+      osc.stop(ctx.currentTime + 0.8 + i * 0.1);
+    });
+  } catch (e) {}
+}
+
 function drawWheel(rotation) {
   const canvas = document.getElementById("wheel-canvas");
   if (!canvas) return;
@@ -79,18 +123,31 @@ function drawWheel(rotation) {
   const size = canvas.width / dpr;
   const ctx = canvas.getContext("2d");
   const center = size / 2;
-  const radius = center - 4;
+  const ringWidth = Math.round(size * 0.025);
+  const radius = center - ringWidth - 2;
   const segCount = WHEEL_SEGMENTS.length;
   const segAngle = (2 * Math.PI) / segCount;
 
   ctx.clearRect(0, 0, size, size);
 
-  // Outer ring
+  // Outer metallic ring
+  const ringGrad = ctx.createLinearGradient(0, 0, size, size);
+  ringGrad.addColorStop(0, "#c0c0c0");
+  ringGrad.addColorStop(0.25, "#f0f0f0");
+  ringGrad.addColorStop(0.5, "#888");
+  ringGrad.addColorStop(0.75, "#e8e8e8");
+  ringGrad.addColorStop(1, "#aaa");
   ctx.beginPath();
-  ctx.arc(center, center, radius + 2, 0, Math.PI * 2);
-  ctx.fillStyle = "#1a2744";
+  ctx.arc(center, center, radius + ringWidth, 0, Math.PI * 2);
+  ctx.fillStyle = ringGrad;
   ctx.fill();
+  ctx.beginPath();
+  ctx.arc(center, center, radius + ringWidth + 1, 0, Math.PI * 2);
+  ctx.strokeStyle = "rgba(0,0,0,0.3)";
+  ctx.lineWidth = 1;
+  ctx.stroke();
 
+  // Segments
   WHEEL_SEGMENTS.forEach((value, i) => {
     const startAngle = rotation + i * segAngle;
     const endAngle = startAngle + segAngle;
@@ -101,18 +158,18 @@ function drawWheel(rotation) {
     ctx.closePath();
 
     const baseColor = getSegmentColor(value);
-    ctx.fillStyle = i % 2 === 0 ? baseColor : lightenColor(baseColor, 20);
+    ctx.fillStyle = i % 2 === 0 ? baseColor : lightenColor(baseColor, 25);
     ctx.fill();
 
-    ctx.strokeStyle = "rgba(255,255,255,0.3)";
-    ctx.lineWidth = 1;
+    ctx.strokeStyle = "rgba(255,255,255,0.15)";
+    ctx.lineWidth = 0.5;
     ctx.stroke();
 
     // Text
     ctx.save();
     ctx.translate(center, center);
     ctx.rotate(startAngle + segAngle / 2);
-    ctx.strokeStyle = "rgba(0,0,0,0.5)";
+    ctx.strokeStyle = "rgba(0,0,0,0.6)";
     ctx.lineWidth = 3;
     ctx.font = "bold " + Math.round(size * 0.028) + "px Inter, sans-serif";
     ctx.textAlign = "center";
@@ -123,14 +180,52 @@ function drawWheel(rotation) {
     ctx.restore();
   });
 
-  // Center circle
+  // Pins at segment boundaries
+  WHEEL_SEGMENTS.forEach((_, i) => {
+    const angle = rotation + i * segAngle;
+    const pinR = radius + ringWidth * 0.5;
+    const px = center + Math.cos(angle) * pinR;
+    const py = center + Math.sin(angle) * pinR;
+    ctx.beginPath();
+    ctx.arc(px, py, Math.max(2, size * 0.006), 0, Math.PI * 2);
+    ctx.fillStyle = "#f0d060";
+    ctx.fill();
+    ctx.strokeStyle = "rgba(0,0,0,0.3)";
+    ctx.lineWidth = 0.5;
+    ctx.stroke();
+  });
+
+  // Glossy light reflection overlay
+  const glossGrad = ctx.createLinearGradient(center * 0.3, center * 0.3, center * 1.5, center * 1.5);
+  glossGrad.addColorStop(0, "rgba(255,255,255,0.18)");
+  glossGrad.addColorStop(0.4, "rgba(255,255,255,0.05)");
+  glossGrad.addColorStop(0.6, "rgba(0,0,0,0)");
+  glossGrad.addColorStop(1, "rgba(0,0,0,0.12)");
   ctx.beginPath();
-  ctx.arc(center, center, radius * 0.15, 0, Math.PI * 2);
-  ctx.fillStyle = "#1a2744";
+  ctx.arc(center, center, radius, 0, Math.PI * 2);
+  ctx.fillStyle = glossGrad;
   ctx.fill();
-  ctx.strokeStyle = "rgba(255,255,255,0.3)";
-  ctx.lineWidth = 2;
+
+  // Center hub – metallic gradient
+  const hubRadius = radius * 0.14;
+  const hubGrad = ctx.createRadialGradient(center - hubRadius * 0.3, center - hubRadius * 0.3, 0, center, center, hubRadius);
+  hubGrad.addColorStop(0, "#e0e0e0");
+  hubGrad.addColorStop(0.4, "#999");
+  hubGrad.addColorStop(0.8, "#555");
+  hubGrad.addColorStop(1, "#333");
+  ctx.beginPath();
+  ctx.arc(center, center, hubRadius, 0, Math.PI * 2);
+  ctx.fillStyle = hubGrad;
+  ctx.fill();
+  ctx.strokeStyle = "rgba(255,255,255,0.2)";
+  ctx.lineWidth = 1.5;
   ctx.stroke();
+
+  // Hub inner shine
+  ctx.beginPath();
+  ctx.arc(center - hubRadius * 0.2, center - hubRadius * 0.25, hubRadius * 0.35, 0, Math.PI * 2);
+  ctx.fillStyle = "rgba(255,255,255,0.15)";
+  ctx.fill();
 }
 
 function lightenColor(hex, percent) {
@@ -169,7 +264,10 @@ function startSpin() {
     const segIndex = Math.floor(angle / segAngle);
     if (segIndex !== lastSegIndex) {
       lastSegIndex = segIndex;
-      if (isStopping) haptic(8 + Math.round((1 - spinSpeed / 0.25) * 30));
+      if (isStopping) {
+        haptic(8 + Math.round((1 - spinSpeed / 0.25) * 30));
+        playTickSound(spinSpeed);
+      }
     }
 
     if (isStopping) {
@@ -212,6 +310,7 @@ function revealScore() {
   flash.classList.add("active");
 
   haptic(100);
+  playRevealSound();
 
   rollEl.textContent = finalNumber;
   rollEl.classList.add("reveal-flash");
@@ -570,6 +669,7 @@ document.getElementById("code-input").addEventListener("keydown", (e) => {
 });
 
 document.getElementById("btn-spin").addEventListener("click", () => {
+  getAudioCtx();
   if (!isSpinning) {
     startSpin();
   } else if (!isStopping) {
