@@ -135,8 +135,8 @@ h2 { font-size: 26px; font-weight: 800; margin-bottom: 0.5rem; }
 /* ── Wheel ── */
 .wheel-wrapper {
   position: relative;
-  width: 300px;
-  height: 300px;
+  width: 500px;
+  height: 500px;
   margin: 0 auto 1rem;
 }
 #wheel-canvas {
@@ -345,7 +345,7 @@ h2 { font-size: 26px; font-weight: 800; margin-bottom: 0.5rem; }
   }
 }
 .hidden { display: none !important; }
-@media (max-width: 480px) { .card { padding: 0 1.25rem; } h1 { font-size: 30px; } .roll-number { font-size: 48px; } .logo-img { width: 150px; height: 150px; } .wheel-wrapper { width: 250px; height: 250px; } }
+@media (max-width: 480px) { .card { padding: 0 1.25rem; } h1 { font-size: 30px; } .roll-number { font-size: 48px; } .logo-img { width: 150px; height: 150px; } .wheel-wrapper { width: 320px; height: 320px; } }
 @media (max-width: 768px) {
   body {
     background-color: #d4a574;
@@ -424,7 +424,7 @@ h2 { font-size: 26px; font-weight: 800; margin-bottom: 0.5rem; }
     text-shadow: 0 0 1px rgba(26, 39, 68, 0.3);
   }
   /* Wheel mobile */
-  .wheel-wrapper { width: 240px; height: 240px; }
+  .wheel-wrapper { width: 340px; height: 340px; }
   #wheel-canvas { box-shadow: 0 2px 12px rgba(26, 39, 68, 0.3) !important; }
   .wheel-pointer { border-top-color: #1a2744 !important; filter: drop-shadow(0 2px 4px rgba(26, 39, 68, 0.3)) !important; }
   .btn-spin { background: #1a2744 !important; -webkit-text-fill-color: #d4a574 !important; color: #d4a574 !important; }

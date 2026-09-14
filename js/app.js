@@ -38,10 +38,11 @@ function generateGameToken(score, timestamp) {
 
 // ── Wheel segments (scrambled for excitement) ──
 const WHEEL_SEGMENTS = [
-  1, 150, 25, 185, 48, 130, 12, 195, 65, 108,
-  35, 168, 78, 200, 6, 162, 42, 138, 90, 18,
-  145, 55, 175, 30, 120, 72, 190, 100, 60, 180,
-  95, 155, 115, 198, 85, 125
+  1, 165, 14, 190, 36, 145, 6, 198, 50, 120,
+  27, 178, 70, 200, 3, 155, 40, 186, 85, 22,
+  150, 60, 196, 32, 130, 75, 192, 105, 45, 183,
+  90, 160, 110, 199, 65, 140, 100, 194, 55, 170,
+  80, 188, 10, 175, 95, 180, 18, 135, 115, 125
 ];
 
 function getSegmentColor(value) {
@@ -113,7 +114,7 @@ function drawWheel(rotation) {
     ctx.rotate(startAngle + segAngle / 2);
     ctx.strokeStyle = "rgba(0,0,0,0.5)";
     ctx.lineWidth = 3;
-    ctx.font = "bold " + Math.round(size * 0.035) + "px Inter, sans-serif";
+    ctx.font = "bold " + Math.round(size * 0.028) + "px Inter, sans-serif";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.strokeText(value.toString(), radius * 0.68, 0);
