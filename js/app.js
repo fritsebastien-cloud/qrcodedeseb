@@ -13,7 +13,7 @@ const FIREBASE_CONFIG = {
 
 const app = initializeApp(FIREBASE_CONFIG);
 const db = getDatabase(app);
-const scoresRef = ref(db, "qrcode-scores-v4");
+const scoresRef = ref(db, "qrcode-scores-v5");
 
 // Access code hashed with SHA-256 (not readable in source code)
 // To change the code, hash the new code at: https://emn178.github.io/online-tools/sha256.html
@@ -151,58 +151,6 @@ function drawConfetti() {
   }
 }
 
-// ── Sound effects ──
-const AudioCtx = window.AudioContext || window.webkitAudioContext;
-let audioCtx = null;
-
-function getAudioCtx() {
-  if (!audioCtx) audioCtx = new AudioCtx();
-  return audioCtx;
-}
-
-function playTickSound() {
-  try {
-    const ctx = getAudioCtx();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.frequency.value = 300 + Math.random() * 400;
-    osc.type = "sine";
-    gain.gain.value = 0.04;
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
-    osc.start(ctx.currentTime);
-    osc.stop(ctx.currentTime + 0.05);
-  } catch (e) { /* silent fail */ }
-}
-
-function playDingSound() {
-  try {
-    const ctx = getAudioCtx();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.frequency.value = 880;
-    osc.type = "sine";
-    gain.gain.value = 0.12;
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
-    osc.start(ctx.currentTime);
-    osc.stop(ctx.currentTime + 0.5);
-
-    // Second harmonic for a nice "ding"
-    const osc2 = ctx.createOscillator();
-    const gain2 = ctx.createGain();
-    osc2.connect(gain2);
-    gain2.connect(ctx.destination);
-    osc2.frequency.value = 1320;
-    osc2.type = "sine";
-    gain2.gain.value = 0.06;
-    gain2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
-    osc2.start(ctx.currentTime + 0.05);
-    osc2.stop(ctx.currentTime + 0.45);
-  } catch (e) { /* silent fail */ }
-}
 
 // ── Haptic feedback ──
 function haptic(duration) {
@@ -306,8 +254,6 @@ function rollAnimation() {
       }
 
       tickCount++;
-      // Sound gets more frequent as we approach the end
-      if (tickCount % Math.max(1, Math.floor(3 - progress * 2)) === 0) playTickSound();
       if (tickCount % Math.max(1, Math.floor(5 - progress * 4)) === 0) haptic(5 + Math.round(progress * 20));
 
       setTimeout(tick, delay);
@@ -333,8 +279,6 @@ function rollAnimation() {
 
       rollEl.textContent = finalNumber.toLocaleString("fr-FR");
 
-      // Ding sound + strong haptic
-      playDingSound();
       haptic(100);
 
       // Fun message with slight delay for dramatic effect
@@ -415,14 +359,37 @@ function loadLeaderboard() {
     const entries = Object.values(data);
     entries.sort((a, b) => a.score - b.score);
     document.getElementById("total-players").textContent = entries.length + " joueur" + (entries.length > 1 ? "s" : "") + " au total";
-    listEl.innerHTML = entries.map((entry, i) => {
+    listEl.innerHTML = "";
+    entries.forEach((entry, i) => {
+      if (typeof entry.name !== "string" || typeof entry.score !== "number") return;
+      if (entry.score < 1 || entry.score > 10000) return;
       const rank = i + 1;
       const topClass = rank <= 3 ? " top-" + rank : "";
       const medal = rank === 1 ? "\uD83E\uDD47" : rank === 2 ? "\uD83E\uDD48" : rank === 3 ? "\uD83E\uDD49" : "";
       const dateStr = new Date(entry.date).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" });
-      const displayName = escapeHtml(entry.name);
-      return '<div class="lb-row' + topClass + '"><div class="lb-rank">' + (medal || rank) + '</div><div class="lb-info"><div class="lb-name">' + displayName + '</div><div class="lb-date">' + dateStr + '</div></div><div class="lb-score">' + entry.score.toLocaleString("fr-FR") + '</div></div>';
-    }).join("");
+      const row = document.createElement("div");
+      row.className = "lb-row" + topClass;
+      const rankDiv = document.createElement("div");
+      rankDiv.className = "lb-rank";
+      rankDiv.textContent = medal || rank;
+      const infoDiv = document.createElement("div");
+      infoDiv.className = "lb-info";
+      const nameDiv = document.createElement("div");
+      nameDiv.className = "lb-name";
+      nameDiv.textContent = entry.name.substring(0, 30);
+      const dateDiv = document.createElement("div");
+      dateDiv.className = "lb-date";
+      dateDiv.textContent = dateStr;
+      infoDiv.appendChild(nameDiv);
+      infoDiv.appendChild(dateDiv);
+      const scoreDiv = document.createElement("div");
+      scoreDiv.className = "lb-score";
+      scoreDiv.textContent = entry.score.toLocaleString("fr-FR");
+      row.appendChild(rankDiv);
+      row.appendChild(infoDiv);
+      row.appendChild(scoreDiv);
+      listEl.appendChild(row);
+    });
   }, { onlyOnce: true });
 }
 
