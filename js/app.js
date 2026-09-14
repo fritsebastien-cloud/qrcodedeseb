@@ -13,10 +13,8 @@ const FIREBASE_CONFIG = {
 
 const app = initializeApp(FIREBASE_CONFIG);
 const db = getDatabase(app);
-const scoresRef = ref(db, "qrcode-scores-v5");
+const scoresRef = ref(db, "qrcode-scores-v6");
 
-// Access code hashed with SHA-256 (not readable in source code)
-// To change the code, hash the new code at: https://emn178.github.io/online-tools/sha256.html
 const ACCESS_CODE_HASH = "c18eab1d848cc0fef69adaf999c36afc0f42a2c33408f61ac5cf4e9684041426";
 
 async function hashCode(input) {
@@ -27,7 +25,6 @@ async function hashCode(input) {
   return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
 }
 
-// Generate a game token to validate that scores come from actual gameplay
 function generateGameToken(score, timestamp) {
   const secret = timestamp.toString(36) + score.toString(36) + "bras";
   let hash = 0;
@@ -37,6 +34,189 @@ function generateGameToken(score, timestamp) {
     hash = hash & hash;
   }
   return Math.abs(hash).toString(36);
+}
+
+// ── Wheel segments (scrambled for excitement) ──
+const WHEEL_SEGMENTS = [
+  5, 120, 30, 175, 55, 140, 15, 190, 70, 105,
+  40, 165, 85, 200, 1, 155, 45, 130, 95, 10
+];
+
+function getSegmentColor(value) {
+  if (value <= 10) return "#c9962a";
+  if (value <= 50) return "#2d8f4e";
+  if (value <= 100) return "#2a6b9b";
+  if (value <= 150) return "#6b4a8a";
+  return "#9b2525";
+}
+
+// ── Wheel drawing ──
+let currentRotation = 0;
+let isSpinning = false;
+
+function initWheel() {
+  const canvas = document.getElementById("wheel-canvas");
+  if (!canvas) return;
+  const container = canvas.parentElement;
+  const size = container.clientWidth;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = size * dpr;
+  canvas.height = size * dpr;
+  canvas.style.width = size + "px";
+  canvas.style.height = size + "px";
+  const ctx = canvas.getContext("2d");
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  drawWheel(currentRotation);
+}
+
+function drawWheel(rotation) {
+  const canvas = document.getElementById("wheel-canvas");
+  if (!canvas) return;
+  const dpr = window.devicePixelRatio || 1;
+  const size = canvas.width / dpr;
+  const ctx = canvas.getContext("2d");
+  const center = size / 2;
+  const radius = center - 4;
+  const segCount = WHEEL_SEGMENTS.length;
+  const segAngle = (2 * Math.PI) / segCount;
+
+  ctx.clearRect(0, 0, size, size);
+
+  // Outer ring
+  ctx.beginPath();
+  ctx.arc(center, center, radius + 2, 0, Math.PI * 2);
+  ctx.fillStyle = "#1a2744";
+  ctx.fill();
+
+  WHEEL_SEGMENTS.forEach((value, i) => {
+    const startAngle = rotation + i * segAngle;
+    const endAngle = startAngle + segAngle;
+
+    ctx.beginPath();
+    ctx.moveTo(center, center);
+    ctx.arc(center, center, radius, startAngle, endAngle);
+    ctx.closePath();
+
+    const baseColor = getSegmentColor(value);
+    ctx.fillStyle = i % 2 === 0 ? baseColor : lightenColor(baseColor, 20);
+    ctx.fill();
+
+    ctx.strokeStyle = "rgba(255,255,255,0.3)";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Text
+    ctx.save();
+    ctx.translate(center, center);
+    ctx.rotate(startAngle + segAngle / 2);
+    ctx.strokeStyle = "rgba(0,0,0,0.5)";
+    ctx.lineWidth = 3;
+    ctx.font = "bold " + Math.round(size * 0.045) + "px Inter, sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.strokeText(value.toString(), radius * 0.68, 0);
+    ctx.fillStyle = "#fff";
+    ctx.fillText(value.toString(), radius * 0.68, 0);
+    ctx.restore();
+  });
+
+  // Center circle
+  ctx.beginPath();
+  ctx.arc(center, center, radius * 0.15, 0, Math.PI * 2);
+  ctx.fillStyle = "#1a2744";
+  ctx.fill();
+  ctx.strokeStyle = "rgba(255,255,255,0.3)";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+}
+
+function lightenColor(hex, percent) {
+  const num = parseInt(hex.replace("#", ""), 16);
+  const r = Math.min(255, (num >> 16) + percent);
+  const g = Math.min(255, ((num >> 8) & 0x00FF) + percent);
+  const b = Math.min(255, (num & 0x0000FF) + percent);
+  return "#" + (0x1000000 + (r << 16) + (g << 8) + b).toString(16).slice(1);
+}
+
+function spinWheel() {
+  if (isSpinning) return;
+  isSpinning = true;
+  document.getElementById("btn-spin").disabled = true;
+  document.getElementById("score-reveal").classList.add("hidden");
+  document.getElementById("retry-section").classList.add("hidden");
+  haptic(50);
+
+  const totalRotation = Math.PI * (10 + Math.random() * 10);
+  const duration = 5500 + Math.random() * 1500;
+  const startTime = Date.now();
+  const startRotation = currentRotation;
+  let lastSegIndex = -1;
+
+  function animate() {
+    const elapsed = Date.now() - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+
+    currentRotation = startRotation + totalRotation * eased;
+    drawWheel(currentRotation);
+
+    // Haptic tick when crossing segment boundaries
+    const segAngle = (2 * Math.PI) / WHEEL_SEGMENTS.length;
+    let angle = ((-Math.PI / 2 - currentRotation) % (2 * Math.PI) + 4 * Math.PI) % (2 * Math.PI);
+    const segIndex = Math.floor(angle / segAngle);
+    if (segIndex !== lastSegIndex) {
+      lastSegIndex = segIndex;
+      if (progress > 0.3) haptic(5 + Math.round(progress * 25));
+    }
+
+    if (progress < 1) {
+      requestAnimationFrame(animate);
+    } else {
+      isSpinning = false;
+      const winIndex = Math.floor(angle / segAngle) % WHEEL_SEGMENTS.length;
+      finalNumber = WHEEL_SEGMENTS[winIndex];
+      revealScore();
+    }
+  }
+  animate();
+}
+
+function revealScore() {
+  const rollEl = document.getElementById("roll-number");
+  const scoreReveal = document.getElementById("score-reveal");
+
+  // Flash effect
+  const flash = document.getElementById("roll-flash");
+  flash.classList.remove("active");
+  void flash.offsetWidth;
+  flash.classList.add("active");
+
+  haptic(100);
+
+  rollEl.textContent = finalNumber;
+  rollEl.classList.add("reveal-flash");
+  setTimeout(() => rollEl.classList.remove("reveal-flash"), 700);
+  scoreReveal.classList.remove("hidden");
+
+  setTimeout(() => {
+    const msg = getFunMessage(finalNumber);
+    const funEl = document.getElementById("fun-message");
+    funEl.textContent = msg.text;
+    funEl.style.color = msg.color;
+
+    if (finalNumber <= 15) {
+      launchConfetti();
+      if (finalNumber <= 5) haptic(200);
+    }
+
+    attempts++;
+    if (attempts < 2) {
+      document.getElementById("retry-section").classList.remove("hidden");
+    } else {
+      document.getElementById("name-form").classList.remove("hidden");
+      document.getElementById("name-input").focus();
+    }
+  }, 500);
 }
 
 // ── Particles background ──
@@ -151,7 +331,6 @@ function drawConfetti() {
   }
 }
 
-
 // ── Haptic feedback ──
 function haptic(duration) {
   try {
@@ -159,17 +338,17 @@ function haptic(duration) {
   } catch (e) { /* silent fail */ }
 }
 
-// ── Fun messages based on score ──
+// ── Fun messages based on score (1-200) ──
 function getFunMessage(score) {
-  if (score <= 10) return { text: "GOAT des GOAT ! Joue au loto 🏆", color: "#f5a623" };
-  if (score <= 50) return { text: "INCROYABLE, reste là dessus tu feras pas mieux", color: "#f5a623" };
-  if (score <= 200) return { text: "Tu fais parti des meilleurs, retiens ça", color: "#5b7cf7" };
-  if (score <= 500) return { text: "C'est pas mal, mais y'a mieux quoi", color: "#4caf7d" };
-  if (score <= 1000) return { text: "Respect, mais pas plus", color: "#4caf7d" };
-  if (score <= 3000) return { text: "C'est bien d'avoir tenté...", color: "#7a8299" };
-  if (score <= 5000) return { text: "Tu perds ton temps et tu m'en fais perdre", color: "#7a8299" };
-  if (score <= 8000) return { text: "Azy toi... dommage", color: "#e05252" };
-  if (score <= 9500) return { text: "ptdrrr merci quand même...", color: "#e05252" };
+  if (score <= 5) return { text: "GOAT des GOAT ! Joue au loto 🏆", color: "#f5a623" };
+  if (score <= 15) return { text: "INCROYABLE, reste là dessus tu feras pas mieux", color: "#f5a623" };
+  if (score <= 40) return { text: "Tu fais parti des meilleurs, retiens ça", color: "#5b7cf7" };
+  if (score <= 70) return { text: "C'est pas mal, mais y'a mieux quoi", color: "#4caf7d" };
+  if (score <= 100) return { text: "Respect, mais pas plus", color: "#4caf7d" };
+  if (score <= 130) return { text: "C'est bien d'avoir tenté...", color: "#7a8299" };
+  if (score <= 155) return { text: "Tu perds ton temps et tu m'en fais perdre", color: "#7a8299" };
+  if (score <= 175) return { text: "Azy toi... dommage", color: "#e05252" };
+  if (score <= 195) return { text: "ptdrrr merci quand même...", color: "#e05252" };
   return { text: "Tu peux pas faire PIRE, c'est nul nul nul !", color: "#e05252" };
 }
 
@@ -178,6 +357,7 @@ let hasPlayed = false;
 let attempts = 0;
 let gameStartTime = null;
 let gameValid = false;
+let finalNumber = null;
 
 // ── Screens ──
 const screens = {
@@ -190,6 +370,9 @@ function showScreen(name) {
   Object.values(screens).forEach(s => s.classList.remove("active"));
   screens[name].classList.add("active");
   if (name === "leaderboard") loadLeaderboard();
+  if (name === "roll") {
+    setTimeout(initWheel, 50);
+  }
   if (name === "welcome") {
     loadScanCount();
     if (hasPlayed) {
@@ -213,106 +396,10 @@ function loadScanCount() {
 }
 loadScanCount();
 
-// ── Roll animation ──
-let finalNumber = null;
-let allScores = [];
-
-function rollAnimation() {
-  const rollEl = document.getElementById("roll-number");
-  const card = rollEl.closest(".card");
-  rollEl.classList.add("spinning-intense");
-  document.getElementById("fun-message").textContent = "";
-  finalNumber = Math.floor(Math.random() * 10000) + 1;
-  const duration = 5500;
-  const start = Date.now();
-  let tickCount = 0;
-  const baseFontSize = window.innerWidth <= 480 ? 56 : 72;
-
-  // Vibrate pattern during roll
-  haptic(50);
-
-  function tick() {
-    const elapsed = Date.now() - start;
-    const progress = elapsed / duration; // 0 → 1
-
-    if (elapsed < duration) {
-      rollEl.textContent = Math.floor(Math.random() * 10000) + 1;
-
-      // Progressive slowdown: starts fast (30ms), ends very slow (400ms)
-      const delay = 30 + Math.pow(progress, 2.5) * 370;
-
-      // Number grows during the roll
-      const growFactor = 1 + progress * 0.35;
-      rollEl.style.fontSize = Math.round(baseFontSize * growFactor) + "px";
-
-      // Blur increases then clears in last 20%
-      if (progress < 0.8) {
-        rollEl.style.filter = "blur(" + Math.round(progress * 2) + "px)";
-      } else {
-        const clearProgress = (progress - 0.8) / 0.2;
-        rollEl.style.filter = "blur(" + Math.round((1 - clearProgress) * 1.6) + "px)";
-      }
-
-      tickCount++;
-      if (tickCount % Math.max(1, Math.floor(5 - progress * 4)) === 0) haptic(5 + Math.round(progress * 20));
-
-      setTimeout(tick, delay);
-    } else {
-      // ── REVEAL ──
-      rollEl.classList.remove("spinning-intense");
-      rollEl.style.filter = "";
-      rollEl.style.fontSize = "";
-
-      // Flash effect
-      const flash = document.getElementById("roll-flash");
-      flash.classList.remove("active");
-      void flash.offsetWidth; // force reflow
-      flash.classList.add("active");
-
-      // Screen shake
-      card.classList.add("screen-shake");
-      setTimeout(() => card.classList.remove("screen-shake"), 600);
-
-      // Reveal animation on number
-      rollEl.classList.add("reveal-flash");
-      setTimeout(() => rollEl.classList.remove("reveal-flash"), 700);
-
-      rollEl.textContent = finalNumber.toLocaleString("fr-FR");
-
-      haptic(100);
-
-      // Fun message with slight delay for dramatic effect
-      setTimeout(() => {
-        const msg = getFunMessage(finalNumber);
-        const funEl = document.getElementById("fun-message");
-        funEl.textContent = msg.text;
-        funEl.style.color = msg.color;
-
-        // Confetti for great scores
-        if (finalNumber <= 200) {
-          launchConfetti();
-          if (finalNumber <= 50) haptic(200);
-        }
-
-        attempts++;
-        if (attempts < 2) {
-          // First attempt: show retry option
-          document.getElementById("retry-section").classList.remove("hidden");
-        } else {
-          // Second attempt: must enter name
-          document.getElementById("name-form").classList.remove("hidden");
-          document.getElementById("name-input").focus();
-        }
-      }, 500);
-    }
-  }
-  tick();
-}
-
 function saveScore(name, score) {
   const cleanName = name.replace(/[<>"'&]/g, "").substring(0, 30).trim();
   if (!cleanName || cleanName.length < 1) return Promise.reject("Invalid name");
-  if (!Number.isInteger(score) || score < 1 || score > 10000) return Promise.reject("Invalid score");
+  if (!Number.isInteger(score) || score < 1 || score > 200) return Promise.reject("Invalid score");
   if (!gameValid || !gameStartTime) return Promise.reject("Game not played");
   const elapsed = Date.now() - gameStartTime;
   if (elapsed < 5000) return Promise.reject("Too fast");
@@ -326,7 +413,7 @@ function saveScore(name, score) {
     date: timestamp,
     duration: elapsed,
     token: token,
-    v: 4
+    v: 6
   });
 }
 
@@ -362,10 +449,10 @@ function loadLeaderboard() {
     listEl.innerHTML = "";
     entries.forEach((entry, i) => {
       if (typeof entry.name !== "string" || typeof entry.score !== "number") return;
-      if (entry.score < 1 || entry.score > 10000) return;
+      if (entry.score < 1 || entry.score > 200) return;
       const rank = i + 1;
       const topClass = rank <= 3 ? " top-" + rank : "";
-      const medal = rank === 1 ? "\uD83E\uDD47" : rank === 2 ? "\uD83E\uDD48" : rank === 3 ? "\uD83E\uDD49" : "";
+      const medal = rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : "";
       const dateStr = new Date(entry.date).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" });
       const row = document.createElement("div");
       row.className = "lb-row" + topClass;
@@ -384,19 +471,13 @@ function loadLeaderboard() {
       infoDiv.appendChild(dateDiv);
       const scoreDiv = document.createElement("div");
       scoreDiv.className = "lb-score";
-      scoreDiv.textContent = entry.score.toLocaleString("fr-FR");
+      scoreDiv.textContent = entry.score;
       row.appendChild(rankDiv);
       row.appendChild(infoDiv);
       row.appendChild(scoreDiv);
       listEl.appendChild(row);
     });
   }, { onlyOnce: true });
-}
-
-function escapeHtml(text) {
-  const div = document.createElement("div");
-  div.textContent = text;
-  return div.innerHTML;
 }
 
 // ── Code modal ──
@@ -418,7 +499,7 @@ function startGame() {
   haptic(15);
   document.getElementById("btn-play").disabled = true;
   document.getElementById("btn-play").textContent = "Déjà joué !";
-  document.getElementById("roll-number").textContent = "\u2014";
+  document.getElementById("score-reveal").classList.add("hidden");
   document.getElementById("name-form").classList.add("hidden");
   document.getElementById("save-msg").classList.add("hidden");
   document.getElementById("btn-to-leaderboard").classList.add("hidden");
@@ -428,9 +509,11 @@ function startGame() {
   document.getElementById("btn-save").disabled = false;
   document.getElementById("btn-save").textContent = "Enregistrer mon score";
   document.getElementById("save-msg").style.color = "";
+  document.getElementById("btn-spin").disabled = false;
+  document.getElementById("btn-spin").classList.remove("hidden");
   finalNumber = null;
+  attempts = 0;
   showScreen("roll");
-  setTimeout(rollAnimation, 300);
 }
 
 // ── Event listeners ──
@@ -461,15 +544,21 @@ document.getElementById("code-input").addEventListener("keydown", (e) => {
   if (e.key === "Enter") document.getElementById("btn-code-ok").click();
 });
 
+document.getElementById("btn-spin").addEventListener("click", () => {
+  if (isSpinning) return;
+  document.getElementById("btn-spin").classList.add("hidden");
+  spinWheel();
+});
+
 document.getElementById("btn-save").addEventListener("click", () => {
   haptic(10);
   const nameInput = document.getElementById("name-input");
   const name = nameInput.value.trim();
   if (!name) {
     nameInput.style.borderColor = "#e05252";
-    nameInput.setAttribute("placeholder", "Entre ton pr\u00e9nom !");
+    nameInput.setAttribute("placeholder", "Entre ton prénom !");
     haptic(50);
-    setTimeout(() => { nameInput.style.borderColor = ""; nameInput.setAttribute("placeholder", "Ton pr\u00e9nom"); }, 2000);
+    setTimeout(() => { nameInput.style.borderColor = ""; nameInput.setAttribute("placeholder", "Ton prénom"); }, 2000);
     return;
   }
   if (!finalNumber) return;
@@ -479,19 +568,18 @@ document.getElementById("btn-save").addEventListener("click", () => {
   saveScore(name, finalNumber).then(() => {
     document.getElementById("name-form").classList.add("hidden");
     const msg = document.getElementById("save-msg");
-    msg.textContent = "Bravo " + name + " ! Ton score de " + finalNumber.toLocaleString("fr-FR") + " est enregistr\u00e9.";
+    msg.textContent = "Bravo " + name + " ! Ton score de " + finalNumber + " est enregistré.";
     msg.style.color = "#4caf7d";
     msg.classList.remove("hidden");
     showRankReveal(finalNumber);
     document.getElementById("btn-to-leaderboard").classList.remove("hidden");
     haptic(20);
-    // Auto-navigate to leaderboard after a short delay
     setTimeout(() => { showScreen("leaderboard"); }, 2500);
   }).catch(() => {
     btn.disabled = false;
     btn.textContent = "Enregistrer mon score";
     const msg = document.getElementById("save-msg");
-    msg.textContent = "Erreur, r\u00e9essaie !";
+    msg.textContent = "Erreur, réessaie !";
     msg.style.color = "#e05252";
     msg.classList.remove("hidden");
   });
@@ -501,10 +589,11 @@ document.getElementById("btn-save").addEventListener("click", () => {
 document.getElementById("btn-retry").addEventListener("click", () => {
   haptic(15);
   document.getElementById("retry-section").classList.add("hidden");
-  document.getElementById("roll-number").textContent = "\u2014";
+  document.getElementById("score-reveal").classList.add("hidden");
   document.getElementById("fun-message").textContent = "";
   finalNumber = null;
-  setTimeout(rollAnimation, 300);
+  document.getElementById("btn-spin").disabled = false;
+  document.getElementById("btn-spin").classList.remove("hidden");
 });
 
 document.getElementById("btn-keep").addEventListener("click", () => {
@@ -519,3 +608,9 @@ document.getElementById("name-input").addEventListener("keydown", (e) => {
 });
 document.getElementById("btn-to-leaderboard").addEventListener("click", () => { haptic(10); showScreen("leaderboard"); });
 document.getElementById("btn-back").addEventListener("click", () => { haptic(10); showScreen("welcome"); });
+
+window.addEventListener("resize", () => {
+  if (screens.roll.classList.contains("active") && !isSpinning) {
+    initWheel();
+  }
+});
