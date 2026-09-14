@@ -141,50 +141,67 @@ function lightenColor(hex, percent) {
   return "#" + (0x1000000 + (r << 16) + (g << 8) + b).toString(16).slice(1);
 }
 
-function spinWheel() {
+let isStopping = false;
+let spinSpeed = 0;
+let lastSegIndex = -1;
+
+function startSpin() {
   if (isSpinning) return;
   isSpinning = true;
-  document.getElementById("btn-spin").disabled = true;
+  isStopping = false;
+  spinSpeed = 0.25;
+  lastSegIndex = -1;
   document.getElementById("score-reveal").classList.add("hidden");
   document.getElementById("retry-section").classList.add("hidden");
   haptic(50);
 
-  const totalRotation = Math.PI * (10 + Math.random() * 10);
-  const duration = 5500 + Math.random() * 1500;
-  const startTime = Date.now();
-  const startRotation = currentRotation;
-  let lastSegIndex = -1;
+  const btn = document.getElementById("btn-spin");
+  btn.textContent = "STOP !";
+  btn.classList.add("btn-stop-mode");
+  btn.disabled = false;
 
   function animate() {
-    const elapsed = Date.now() - startTime;
-    const progress = Math.min(elapsed / duration, 1);
-    const eased = 1 - Math.pow(1 - progress, 3);
-
-    currentRotation = startRotation + totalRotation * eased;
+    currentRotation += spinSpeed;
     drawWheel(currentRotation);
 
-    // Haptic tick when crossing segment boundaries
     const segAngle = (2 * Math.PI) / WHEEL_SEGMENTS.length;
     let angle = ((-Math.PI / 2 - currentRotation) % (2 * Math.PI) + 4 * Math.PI) % (2 * Math.PI);
     const segIndex = Math.floor(angle / segAngle);
     if (segIndex !== lastSegIndex) {
       lastSegIndex = segIndex;
-      if (progress > 0.3) haptic(5 + Math.round(progress * 25));
+      if (isStopping) haptic(8 + Math.round((1 - spinSpeed / 0.25) * 30));
     }
 
-    if (progress < 1) {
-      requestAnimationFrame(animate);
-    } else {
-      isSpinning = false;
-      const winIndex = Math.floor(angle / segAngle) % WHEEL_SEGMENTS.length;
-      finalNumber = WHEEL_SEGMENTS[winIndex];
-      revealScore();
+    if (isStopping) {
+      spinSpeed *= 0.97;
+      if (spinSpeed < 0.001) {
+        isSpinning = false;
+        isStopping = false;
+        const winIndex = Math.floor(angle / segAngle) % WHEEL_SEGMENTS.length;
+        finalNumber = WHEEL_SEGMENTS[winIndex];
+        btn.classList.remove("btn-stop-mode");
+        revealScore();
+        return;
+      }
     }
+
+    requestAnimationFrame(animate);
   }
   animate();
 }
 
+function stopSpin() {
+  if (!isSpinning || isStopping) return;
+  isStopping = true;
+  haptic(30);
+  const btn = document.getElementById("btn-spin");
+  btn.disabled = true;
+  btn.textContent = "...";
+  btn.classList.remove("btn-stop-mode");
+}
+
 function revealScore() {
+  document.getElementById("btn-spin").classList.add("hidden");
   const rollEl = document.getElementById("roll-number");
   const scoreReveal = document.getElementById("score-reveal");
 
@@ -512,9 +529,14 @@ function startGame() {
   document.getElementById("btn-save").disabled = false;
   document.getElementById("btn-save").textContent = "Enregistrer mon score";
   document.getElementById("save-msg").style.color = "";
-  document.getElementById("btn-spin").disabled = false;
-  document.getElementById("btn-spin").classList.remove("hidden");
+  const spinBtn = document.getElementById("btn-spin");
+  spinBtn.disabled = false;
+  spinBtn.textContent = "Tourner la roue";
+  spinBtn.classList.remove("hidden");
+  spinBtn.classList.remove("btn-stop-mode");
   finalNumber = null;
+  isSpinning = false;
+  isStopping = false;
   attempts = 0;
   showScreen("roll");
 }
@@ -548,9 +570,11 @@ document.getElementById("code-input").addEventListener("keydown", (e) => {
 });
 
 document.getElementById("btn-spin").addEventListener("click", () => {
-  if (isSpinning) return;
-  document.getElementById("btn-spin").classList.add("hidden");
-  spinWheel();
+  if (!isSpinning) {
+    startSpin();
+  } else if (!isStopping) {
+    stopSpin();
+  }
 });
 
 document.getElementById("btn-save").addEventListener("click", () => {
@@ -595,8 +619,11 @@ document.getElementById("btn-retry").addEventListener("click", () => {
   document.getElementById("score-reveal").classList.add("hidden");
   document.getElementById("fun-message").textContent = "";
   finalNumber = null;
-  document.getElementById("btn-spin").disabled = false;
-  document.getElementById("btn-spin").classList.remove("hidden");
+  const btn = document.getElementById("btn-spin");
+  btn.disabled = false;
+  btn.textContent = "Tourner la roue";
+  btn.classList.remove("hidden");
+  btn.classList.remove("btn-stop-mode");
 });
 
 document.getElementById("btn-keep").addEventListener("click", () => {
