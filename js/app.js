@@ -13,7 +13,7 @@ const FIREBASE_CONFIG = {
 
 const app = initializeApp(FIREBASE_CONFIG);
 const db = getDatabase(app);
-const scoresRef = ref(db, "qrcode-scores-v3");
+const scoresRef = ref(db, "qrcode-scores-v4");
 
 // Access code hashed with SHA-256 (not readable in source code)
 // To change the code, hash the new code at: https://emn178.github.io/online-tools/sha256.html
@@ -228,6 +228,8 @@ function getFunMessage(score) {
 // ── State ──
 let hasPlayed = false;
 let attempts = 0;
+let gameStartTime = null;
+let gameValid = false;
 
 // ── Screens ──
 const screens = {
@@ -364,19 +366,23 @@ function rollAnimation() {
 }
 
 function saveScore(name, score) {
-  // Validate data before saving
   const cleanName = name.replace(/[<>"'&]/g, "").substring(0, 30).trim();
   if (!cleanName || cleanName.length < 1) return Promise.reject("Invalid name");
   if (!Number.isInteger(score) || score < 1 || score > 10000) return Promise.reject("Invalid score");
+  if (!gameValid || !gameStartTime) return Promise.reject("Game not played");
+  const elapsed = Date.now() - gameStartTime;
+  if (elapsed < 5000) return Promise.reject("Too fast");
 
   const timestamp = Date.now();
   const token = generateGameToken(score, timestamp);
+  gameValid = false;
   return push(scoresRef, {
     name: cleanName,
     score: score,
     date: timestamp,
+    duration: elapsed,
     token: token,
-    v: 3
+    v: 4
   });
 }
 
@@ -440,6 +446,8 @@ function closeCodeModal() {
 
 function startGame() {
   hasPlayed = true;
+  gameStartTime = Date.now();
+  gameValid = true;
   haptic(15);
   document.getElementById("btn-play").disabled = true;
   document.getElementById("btn-play").textContent = "Déjà joué !";
